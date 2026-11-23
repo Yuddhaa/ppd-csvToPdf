@@ -1,300 +1,671 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Pharma Invoice PDF to CSV</title>
-  <style>
-    :root {font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#1d2939;background:#f6f7f9}
-    *{box-sizing:border-box}body{margin:0;padding:48px 16px}main{max-width:540px;margin:auto;background:white;border:1px solid #e4e7ec;border-radius:14px;padding:30px;box-shadow:0 10px 28px #1018280a}
-    h1{font-size:23px;margin:0 0 7px}p{color:#667085;line-height:1.55;margin:0 0 24px;font-size:14px}label{display:block;font-weight:600;font-size:14px;margin:18px 0 8px}
-    select,input[type=file]{width:100%;border:1px solid #d0d5dd;border-radius:8px;background:white;padding:12px;font:inherit;font-size:14px}button{width:100%;border:0;border-radius:8px;background:#175cd3;color:white;padding:13px;font-size:15px;font-weight:650;cursor:pointer;margin-top:24px}button:disabled{opacity:.6;cursor:wait}
-    #status{margin-top:18px;font-size:14px;line-height:1.5;white-space:pre-wrap;display:none;padding:12px;border-radius:8px}#status.success{display:block;background:#ecfdf3;color:#027a48}#status.error{display:block;background:#fef3f2;color:#b42318}#status.info{display:block;background:#eff8ff;color:#175cd3}
-    footer{text-align:center;color:#98a2b3;font-size:12px;margin-top:18px}
-  </style>
-</head>
-<body>
-<main>
-  <h1>PDF to CSV Converter</h1>
-  <p>Convert supplier invoices into CSV files for ERP import. Processing stays on this device.</p>
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <title>Pharma Invoice PDF to CSV</title>
+        <style>
+            :root {
+                font-family:
+                    system-ui,
+                    -apple-system,
+                    BlinkMacSystemFont,
+                    "Segoe UI",
+                    sans-serif;
+                color: #1d2939;
+                background: #f6f7f9;
+            }
+            * {
+                box-sizing: border-box;
+            }
+            body {
+                margin: 0;
+                padding: 48px 16px;
+            }
+            main {
+                max-width: 540px;
+                margin: auto;
+                background: white;
+                border: 1px solid #e4e7ec;
+                border-radius: 14px;
+                padding: 30px;
+                box-shadow: 0 10px 28px #1018280a;
+            }
+            h1 {
+                font-size: 23px;
+                margin: 0 0 7px;
+            }
+            p {
+                color: #667085;
+                line-height: 1.55;
+                margin: 0 0 24px;
+                font-size: 14px;
+            }
+            label {
+                display: block;
+                font-weight: 600;
+                font-size: 14px;
+                margin: 18px 0 8px;
+            }
+            select,
+            input[type="file"] {
+                width: 100%;
+                border: 1px solid #d0d5dd;
+                border-radius: 8px;
+                background: white;
+                padding: 12px;
+                font: inherit;
+                font-size: 14px;
+            }
+            button {
+                width: 100%;
+                border: 0;
+                border-radius: 8px;
+                background: #175cd3;
+                color: white;
+                padding: 13px;
+                font-size: 15px;
+                font-weight: 650;
+                cursor: pointer;
+                margin-top: 24px;
+            }
+            button:disabled {
+                opacity: 0.6;
+                cursor: wait;
+            }
+            #status {
+                margin-top: 18px;
+                font-size: 14px;
+                line-height: 1.5;
+                white-space: pre-wrap;
+                display: none;
+                padding: 12px;
+                border-radius: 8px;
+            }
+            #status.success {
+                display: block;
+                background: #ecfdf3;
+                color: #027a48;
+            }
+            #status.error {
+                display: block;
+                background: #fef3f2;
+                color: #b42318;
+            }
+            #status.info {
+                display: block;
+                background: #eff8ff;
+                color: #175cd3;
+            }
+            footer {
+                text-align: center;
+                color: #98a2b3;
+                font-size: 12px;
+                margin-top: 18px;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <h1>PDF to CSV Converter</h1>
+            <p>
+                Convert supplier invoices into CSV files for ERP import.
+                Processing stays on this device.
+            </p>
 
-  <label for="supplier">Supplier</label>
-  <select id="supplier">
-    <option value="">Select supplier</option>
-    <option value="dhoot">Shree Dhootapapeshwar Limited</option>
-    <option value="blue">Blue Cross Laboratories Pvt Ltd</option>
-  </select>
+            <label for="supplier">Supplier</label>
+            <select id="supplier">
+                <option value="">Select supplier</option>
+                <option value="dhoot">Shree Dhootapapeshwar Limited</option>
+                <option value="blue">Blue Cross Laboratories Pvt Ltd</option>
+                <option value="siddhayu">
+                    Siddhayu Ayurvedic Research Foundation Pvt Ltd
+                </option>
+            </select>
 
-  <label for="pdf">Invoice PDF</label>
-  <input id="pdf" type="file" accept="application/pdf,.pdf" />
-  <button id="generate">Generate CSV</button>
-  <div id="status" role="status" aria-live="polite"></div>
-</main>
+            <label for="pdf">Invoice PDF</label>
+            <input id="pdf" type="file" accept="application/pdf,.pdf" />
+            <button id="generate">Generate CSV</button>
+            <div id="status" role="status" aria-live="polite"></div>
+        </main>
 
-<footer>Supports selectable-text PDFs only · Please verify extracted values before ERP import.</footer>
+        <footer>
+            Supports selectable-text PDFs only · Please verify extracted values
+            before ERP import.
+        </footer>
 
-<script type="module">
-  import * as pdfjsLib from 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs';
+        <script type="module">
+            import * as pdfjsLib from "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.min.mjs";
 
-  pdfjsLib.GlobalWorkerOptions.workerSrc =
-    'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs';
+            pdfjsLib.GlobalWorkerOptions.workerSrc =
+                "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/4.10.38/pdf.worker.min.mjs";
 
-  const $ = id => document.getElementById(id);
-  const status = (message, type = 'info') => {
-    $('status').textContent = message;
-    $('status').className = type;
-  };
+            const $ = (id) => document.getElementById(id);
+            const status = (message, type = "info") => {
+                $("status").textContent = message;
+                $("status").className = type;
+            };
 
-  const clean = value => String(value ?? '').replace(/\s+/g, ' ').trim();
-  const numeric = value => clean(value).replace(/,/g, '');
-  const isNumber = value => /^-?\d+(?:\.\d+)?$/.test(numeric(value));
+            const clean = (value) =>
+                String(value ?? "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+            const numeric = (value) => clean(value).replace(/,/g, "");
+            const isNumber = (value) =>
+                /^-?\d+(?:\.\d+)?$/.test(numeric(value));
 
-  // Normalize PDF text coordinates to the supplier sample's page dimensions.
-  function normalizeItems(items, width, height, refWidth, refHeight) {
-    const sx = refWidth / width;
-    const sy = refHeight / height;
+            // Normalize PDF text coordinates to the supplier sample's page dimensions.
+            function normalizeItems(items, width, height, refWidth, refHeight) {
+                const sx = refWidth / width;
+                const sy = refHeight / height;
 
-    return items.filter(item => clean(item.str)).map(item => ({
-      text: clean(item.str),
-      x: item.transform[4] * sx,
-      y: (height - item.transform[5]) * sy,
-      w: (item.width || 0) * sx
-    }));
-  }
+                return items
+                    .filter((item) => clean(item.str))
+                    .map((item) => ({
+                        text: clean(item.str),
+                        x: item.transform[4] * sx,
+                        y: (height - item.transform[5]) * sy,
+                        w: (item.width || 0) * sx,
+                    }));
+            }
 
-  // Blue Cross may combine expiry and MRP into one PDF text item.
-  function splitBlueMerged(items) {
-    const output = [];
+            // Blue Cross may combine expiry and MRP into one PDF text item.
+            function splitBlueMerged(items) {
+                const output = [];
 
-    for (const item of items) {
-      const match = item.text.match(/^(\d{2}\/\d{2})(\d{1,4}\.\d{2})$/);
+                for (const item of items) {
+                    const match = item.text.match(
+                        /^(\d{2}\/\d{2})(\d{1,4}\.\d{2})$/,
+                    );
 
-      if (match && item.x >= 357 && item.x < 390) {
-        output.push({ ...item, text: match[1], x: 364, w: 21 });
-        output.push({ ...item, text: match[2], x: 389, w: 22 });
-      } else {
-        output.push(item);
-      }
-    }
+                    if (match && item.x >= 357 && item.x < 390) {
+                        output.push({ ...item, text: match[1], x: 364, w: 21 });
+                        output.push({ ...item, text: match[2], x: 389, w: 22 });
+                    } else {
+                        output.push(item);
+                    }
+                }
 
-    return output;
-  }
+                return output;
+            }
 
-  function cellText(items, left, right) {
-    return clean(items
-      .filter(item => {
-        const midpoint = item.x + item.w / 2;
-        return midpoint >= left && midpoint < right;
-      })
-      .sort((a, b) => a.x - b.x)
-      .map(item => item.text)
-      .join(' '));
-  }
+            function cellText(items, left, right) {
+                return clean(
+                    items
+                        .filter((item) => {
+                            const midpoint = item.x + item.w / 2;
+                            return midpoint >= left && midpoint < right;
+                        })
+                        .sort((a, b) => a.x - b.x)
+                        .map((item) => item.text)
+                        .join(" "),
+                );
+            }
 
-  function groupRows(items, serialLeft, serialRight, minY, maxY, tolerance) {
-    const anchors = items
-      .filter(item =>
-        item.y >= minY && item.y < maxY &&
-        item.x >= serialLeft && item.x < serialRight &&
-        /^\d{1,4}$/.test(item.text)
-      )
-      .sort((a, b) => a.y - b.y);
+            function groupRows(
+                items,
+                serialLeft,
+                serialRight,
+                minY,
+                maxY,
+                tolerance,
+            ) {
+                const anchors = items
+                    .filter(
+                        (item) =>
+                            item.y >= minY &&
+                            item.y < maxY &&
+                            item.x >= serialLeft &&
+                            item.x < serialRight &&
+                            /^\d{1,4}$/.test(item.text),
+                    )
+                    .sort((a, b) => a.y - b.y);
 
-    const rows = [];
+                const rows = [];
 
-    for (const anchor of anchors) {
-      if (rows.some(row => Math.abs(row.y - anchor.y) < tolerance)) continue;
-      rows.push({ y: anchor.y });
-    }
+                for (const anchor of anchors) {
+                    if (
+                        rows.some(
+                            (row) => Math.abs(row.y - anchor.y) < tolerance,
+                        )
+                    )
+                        continue;
+                    rows.push({ y: anchor.y });
+                }
 
-    return rows.map((row, index) => {
-      const previousY = index ? rows[index - 1].y : -Infinity;
-      const nextY = index + 1 < rows.length ? rows[index + 1].y : Infinity;
+                return rows.map((row, index) => {
+                    const previousY = index ? rows[index - 1].y : -Infinity;
+                    const nextY =
+                        index + 1 < rows.length ? rows[index + 1].y : Infinity;
 
-      // Bound the first and last rows as well as the rows between them.
-      const top = Math.max(minY, (previousY + row.y) / 2, row.y - tolerance);
-      const bottom = Math.min(maxY, (nextY + row.y) / 2, row.y + tolerance);
+                    // Bound the first and last rows as well as the rows between them.
+                    const top = Math.max(
+                        minY,
+                        (previousY + row.y) / 2,
+                        row.y - tolerance,
+                    );
+                    const bottom = Math.min(
+                        maxY,
+                        (nextY + row.y) / 2,
+                        row.y + tolerance,
+                    );
 
-      return items.filter(item => item.y >= top && item.y < bottom);
-    });
-  }
+                    return items.filter(
+                        (item) => item.y >= top && item.y < bottom,
+                    );
+                });
+            }
 
-  const DHOOT_HEADERS = [
-    'Sr No', 'Description & Specification of Goods', 'HSN Code', 'Batch No',
-    'Exp. Date', 'MRP', 'TP W/O GST', 'Quantity', 'Scheme', 'Amount (Rs.)'
-  ];
+            const DHOOT_HEADERS = [
+                "Sr No",
+                "Description & Specification of Goods",
+                "HSN Code",
+                "Batch No",
+                "Exp. Date",
+                "MRP",
+                "TP W/O GST",
+                "Quantity",
+                "Scheme",
+                "Amount (Rs.)",
+            ];
 
-  const DHOOT_EDGES = [28, 46, 195, 241, 300, 347, 392, 436, 477, 512, 570];
+            const DHOOT_EDGES = [
+                28, 46, 195, 241, 300, 347, 392, 436, 477, 512, 570,
+            ];
 
-  function parseDhoot(items) {
-    const header = items.find(item =>
-      item.x >= 436 && item.x < 477 && /^quantity$/i.test(item.text)
-    );
-    if (!header) return [];
+            function parseDhoot(items) {
+                const header = items.find(
+                    (item) =>
+                        item.x >= 436 &&
+                        item.x < 477 &&
+                        /^quantity$/i.test(item.text),
+                );
+                if (!header) return [];
 
-    // The heading takes two lines. The subtotal starts in Description.
-    const startY = header.y + 11;
-    const total = items
-      .filter(item =>
-        item.y > startY && item.x >= 46 && item.x < 195 &&
-        /^total$/i.test(item.text)
-      )
-      .sort((a, b) => a.y - b.y)[0];
+                // The heading takes two lines. The subtotal starts in Description.
+                const startY = header.y + 11;
+                const total = items
+                    .filter(
+                        (item) =>
+                            item.y > startY &&
+                            item.x >= 46 &&
+                            item.x < 195 &&
+                            /^total$/i.test(item.text),
+                    )
+                    .sort((a, b) => a.y - b.y)[0];
 
-    const endY = total ? total.y - 2 : Infinity;
-    const rows = groupRows(items, 28, 45, startY, endY, 5.5);
+                const endY = total ? total.y - 2 : Infinity;
+                const rows = groupRows(items, 28, 45, startY, endY, 5.5);
 
-    return rows
-      .map(row => DHOOT_HEADERS.map((_, column) =>
-        cellText(row, DHOOT_EDGES[column], DHOOT_EDGES[column + 1])
-      ))
-      .filter(row =>
-        /^\d+$/.test(row[0]) && /^\d{6,8}$/.test(row[2]) &&
-        row[1] && isNumber(row[7])
-      );
-  }
+                return rows
+                    .map((row) =>
+                        DHOOT_HEADERS.map((_, column) =>
+                            cellText(
+                                row,
+                                DHOOT_EDGES[column],
+                                DHOOT_EDGES[column + 1],
+                            ),
+                        ),
+                    )
+                    .filter(
+                        (row) =>
+                            /^\d+$/.test(row[0]) &&
+                            /^\d{6,8}$/.test(row[2]) &&
+                            row[1] &&
+                            isNumber(row[7]),
+                    );
+            }
 
-  const BLUE_HEADERS = [
-    'Sr No', 'HSN Code', 'Batch No', 'Description', 'Pack', 'Mfd By', 'Cat',
-    'Exp Dt', 'MRP Inc. Taxes', 'PTR', 'Quantity', 'Case No',
-    'PTS / Rate Per Unit', 'Value', 'Qty % Disc', 'Disc Amount',
-    'Other Disc', 'Assessable Value', 'IGST %', 'IGST Amount', 'CGST %',
-    'CGST Amount', 'SGST %', 'SGST Amount', 'Total Value (Rs.)'
-  ];
+            const BLUE_HEADERS = [
+                "Sr No",
+                "HSN Code",
+                "Batch No",
+                "Description",
+                "Pack",
+                "Mfd By",
+                "Cat",
+                "Exp Dt",
+                "MRP Inc. Taxes",
+                "PTR",
+                "Quantity",
+                "Case No",
+                "PTS / Rate Per Unit",
+                "Value",
+                "Qty % Disc",
+                "Disc Amount",
+                "Other Disc",
+                "Assessable Value",
+                "IGST %",
+                "IGST Amount",
+                "CGST %",
+                "CGST Amount",
+                "SGST %",
+                "SGST Amount",
+                "Total Value (Rs.)",
+            ];
 
-  const BLUE_EDGES = [
-    32, 45, 80, 120, 258, 288, 340, 362, 388, 413, 443, 483, 502,
-    545, 592, 625, 671, 717, 768, 791, 821, 842, 873, 893, 927, 987
-  ];
+            const BLUE_EDGES = [
+                32, 45, 80, 120, 258, 288, 340, 362, 388, 413, 443, 483, 502,
+                545, 592, 625, 671, 717, 768, 791, 821, 842, 873, 893, 927, 987,
+            ];
 
-  function parseBlue(rawItems) {
-    const items = splitBlueMerged(rawItems);
-    const rows = groupRows(items, 32, 45, 175, 590, 4.6);
+            function parseBlue(rawItems) {
+                const items = splitBlueMerged(rawItems);
+                const rows = groupRows(items, 32, 45, 175, 590, 4.6);
 
-    return rows
-      .map(row => BLUE_HEADERS.map((_, column) =>
-        cellText(row, BLUE_EDGES[column], BLUE_EDGES[column + 1])
-      ))
-      .filter(row =>
-        /^\d+$/.test(row[0]) && /^\d{6,8}$/.test(row[1]) &&
-        row[3] && isNumber(row[10])
-      );
-  }
+                return rows
+                    .map((row) =>
+                        BLUE_HEADERS.map((_, column) =>
+                            cellText(
+                                row,
+                                BLUE_EDGES[column],
+                                BLUE_EDGES[column + 1],
+                            ),
+                        ),
+                    )
+                    .filter(
+                        (row) =>
+                            /^\d+$/.test(row[0]) &&
+                            /^\d{6,8}$/.test(row[1]) &&
+                            row[3] &&
+                            isNumber(row[10]),
+                    );
+            }
 
-  function csvValue(value) {
-    return '"' + String(value ?? '').replace(/"/g, '""') + '"';
-  }
+            // =============================================
+            // SUPPLIER 3: SIDDHAYU (INDEPENDENT PARSER)
+            // =============================================
 
-  function downloadCsv(headers, rows, filename) {
-    const csv = '\uFEFF' +
-      [headers, ...rows].map(row => row.map(csvValue).join(',')).join('\r\n') +
-      '\r\n';
+            const SIDDHAYU_HEADERS = [
+                "SR No",
+                "Item Code",
+                "Material Description",
+                "HSN Code",
+                "Batch",
+                "Mfg Date",
+                "Expiry",
+                "MRP INR",
+                "Total Qty",
+                "Scheme/Free Qty",
+                "Bill Qty",
+                "UOM",
+                "BOX",
+                "Rate/WSP",
+                "WSP Amount",
+                "Discount",
+                "Taxable Value",
+                "CGST Rate",
+                "CGST Amt",
+                "SGST Rate",
+                "SGST Amt",
+                "IGST Rate",
+                "IGST Amt",
+                "Discount % Free Additional Scheme Disc.",
+            ];
 
-    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    setTimeout(() => URL.revokeObjectURL(url), 1000);
-  }
+            const SIDDHAYU_EDGES = [
+                0, 23, 49, 101, 138, 183, 205, 230, 260, 294, 328, 364, 388,
+                410, 444, 494, 544, 592, 621, 654, 683, 720, 747, 776, 842,
+            ];
 
-  const noTextMessage =
-    'No selectable text could be extracted from the PDF. It may be an image-only scan. Use a digital invoice or an OCR-converted PDF.';
+            // This function only handles Siddhayu's packed Batch/Mfg/Expiry text.
+            function splitSiddhayuDates(items) {
+                const result = [];
 
-  $('generate').addEventListener('click', async () => {
-    const supplier = $('supplier').value;
-    const file = $('pdf').files[0];
+                for (const item of items) {
+                    const three = item.text.match(
+                        /^([A-Z0-9-]+)\s+(\d{2}-\d{2})\s+(\d{2}-\d{2})$/,
+                    );
+                    const two = item.text.match(
+                        /^(\d{2}-\d{2})\s+(\d{2}-\d{2})$/,
+                    );
 
-    if (!supplier) {
-      status('Please select a supplier.', 'error');
-      return;
-    }
+                    if (three && item.x >= 135 && item.x < 185) {
+                        result.push({ ...item, text: three[1], x: 151, w: 12 });
+                        result.push({ ...item, text: three[2], x: 191, w: 12 });
+                        result.push({ ...item, text: three[3], x: 215, w: 12 });
+                    } else if (two && item.x >= 180 && item.x < 230) {
+                        result.push({ ...item, text: two[1], x: 191, w: 12 });
+                        result.push({ ...item, text: two[2], x: 215, w: 12 });
+                    } else {
+                        result.push(item);
+                    }
+                }
 
-    if (!file) {
-      status('Please upload a PDF invoice.', 'error');
-      return;
-    }
+                return result;
+            }
 
-    if (!/\.pdf$/i.test(file.name) && file.type !== 'application/pdf') {
-      status('Please select a PDF file.', 'error');
-      return;
-    }
+            function parseSiddhayu(rawItems) {
+                const items = splitSiddhayuDates(rawItems);
 
-    const button = $('generate');
-    button.disabled = true;
-    status('Reading PDF and extracting invoice rows...');
+                // Product serial numbers appear in the first 23 PDF points.
+                // Page 3 has only an invoice summary, so no product anchors.
+                const anchors = items
+                    .filter(
+                        (item) =>
+                            item.x >= 8 &&
+                            item.x < 23 &&
+                            item.y > 190 &&
+                            item.y < 585 &&
+                            /^\d{1,3}$/.test(item.text),
+                    )
+                    .sort((a, b) => a.y - b.y);
 
-    let doc;
+                const unique = anchors.filter(
+                    (anchor, index) =>
+                        index === 0 ||
+                        Math.abs(anchor.y - anchors[index - 1].y) > 4,
+                );
 
-    try {
-      const buffer = await file.arrayBuffer();
-      doc = await pdfjsLib.getDocument({ data: new Uint8Array(buffer) }).promise;
+                const rows = [];
+                for (let i = 0; i < unique.length; i++) {
+                    const anchor = unique[i];
+                    const top = i
+                        ? (unique[i - 1].y + anchor.y) / 2
+                        : anchor.y - 13;
+                    const bottom =
+                        i + 1 < unique.length
+                            ? (anchor.y + unique[i + 1].y) / 2
+                            : anchor.y + 13;
+                    const rowItems = items.filter(
+                        (item) => item.y >= top && item.y < bottom,
+                    );
 
-      const allRows = [];
+                    const row = SIDDHAYU_HEADERS.map((_, column) => {
+                        const left = SIDDHAYU_EDGES[column];
+                        const right = SIDDHAYU_EDGES[column + 1];
+                        const fragments = rowItems
+                            .filter((item) => {
+                                const midpoint = item.x + item.w / 2;
+                                return midpoint >= left && midpoint < right;
+                            })
+                            .sort((a, b) =>
+                                Math.abs(a.y - b.y) < 2 ? a.x - b.x : a.y - b.y,
+                            );
 
-      for (let pageNum = 1; pageNum <= doc.numPages; pageNum++) {
-        const page = await doc.getPage(pageNum);
-        const content = await page.getTextContent();
-        const viewport = page.getViewport({ scale: 1 });
+                        // Item codes are printed on two separate lines.
+                        if (column === 1)
+                            return fragments.map((item) => item.text).join("");
+                        return clean(
+                            fragments.map((item) => item.text).join(" "),
+                        );
+                    });
 
-        const raw = normalizeItems(
-          content.items,
-          viewport.width,
-          viewport.height,
-          supplier === 'blue' ? 1006 : 595.276,
-          supplier === 'blue' ? 609 : 841.89
-        );
+                    // Skip page metadata, totals and incomplete/misaligned rows.
+                    if (
+                        /^\d{1,3}$/.test(row[0]) &&
+                        /^\d{8,12}$/.test(row[1]) &&
+                        row[2] &&
+                        /^\d{6,8}$/.test(row[3]) &&
+                        row[4] &&
+                        isNumber(row[10])
+                    )
+                        rows.push(row);
+                }
+                return rows;
+            }
 
-        if (!raw.length) {
-          throw new Error(doc.numPages === 1
-            ? noTextMessage
-            : `Page ${pageNum} has no selectable text. Use a digital invoice or an OCR-converted PDF.`
-          );
-        }
+            function csvValue(value) {
+                return '"' + String(value ?? "").replace(/"/g, '""') + '"';
+            }
 
-        const pageText = raw.map(item => item.text).join(' ').toUpperCase();
-        const validSupplier = supplier === 'blue'
-          ? /BLUE\s*CROSS|BCLPL/.test(pageText)
-          : /DHOOTAPAPESHWAR/.test(pageText);
+            function downloadCsv(headers, rows, filename) {
+                const csv =
+                    "\uFEFF" +
+                    [headers, ...rows]
+                        .map((row) => row.map(csvValue).join(","))
+                        .join("\r\n") +
+                    "\r\n";
 
-        if (!validSupplier) {
-          if (pageNum === 1) {
-            throw new Error('The selected supplier does not match the PDF. Please select the correct supplier.');
-          }
-          continue;
-        }
+                const url = URL.createObjectURL(
+                    new Blob([csv], { type: "text/csv;charset=utf-8" }),
+                );
+                const link = document.createElement("a");
+                link.href = url;
+                link.download = filename;
+                document.body.appendChild(link);
+                link.click();
+                link.remove();
+                setTimeout(() => URL.revokeObjectURL(url), 1000);
+            }
 
-        const rows = supplier === 'blue' ? parseBlue(raw) : parseDhoot(raw);
-        allRows.push(...rows);
-      }
+            const noTextMessage =
+                "No selectable text could be extracted from the PDF. It may be an image-only scan. Use a digital invoice or an OCR-converted PDF.";
 
-      if (!allRows.length) {
-        throw new Error(
-          'Selectable text was found, but no valid medicine rows matched this supplier’s known table layout. ' +
-          'The PDF layout may have changed. No CSV was generated.'
-        );
-      }
+            $("generate").addEventListener("click", async () => {
+                const supplier = $("supplier").value;
+                const file = $("pdf").files[0];
 
-      const headers = supplier === 'blue' ? BLUE_HEADERS : DHOOT_HEADERS;
-      const name = supplier === 'blue' ? 'BLUE CROSS LABORATORIES' : 'SHREE DHOOTAPAPESHWAR LIMITED';
-      downloadCsv(headers, allRows, name + '.csv');
+                if (!supplier) {
+                    status("Please select a supplier.", "error");
+                    return;
+                }
 
-      status(
-        `CSV downloaded successfully.\n` +
-        `${allRows.length} medicine row(s) extracted across ${doc.numPages} PDF page(s).\n` +
-        `Please verify the CSV against the original invoice before importing into your ERP.`,
-        'success'
-      );
-    } catch (error) {
-      console.error(error);
-      status('Conversion failed: ' + (error?.message || String(error)), 'error');
-    } finally {
-      if (doc) await doc.destroy().catch(() => {});
-      button.disabled = false;
-    }
-  });
-</script>
-</body>
+                if (!file) {
+                    status("Please upload a PDF invoice.", "error");
+                    return;
+                }
+
+                if (
+                    !/\.pdf$/i.test(file.name) &&
+                    file.type !== "application/pdf"
+                ) {
+                    status("Please select a PDF file.", "error");
+                    return;
+                }
+
+                const button = $("generate");
+                button.disabled = true;
+                status("Reading PDF and extracting invoice rows...");
+
+                let doc;
+
+                try {
+                    const buffer = await file.arrayBuffer();
+                    doc = await pdfjsLib.getDocument({
+                        data: new Uint8Array(buffer),
+                    }).promise;
+
+                    const allRows = [];
+
+                    for (let pageNum = 1; pageNum <= doc.numPages; pageNum++) {
+                        const page = await doc.getPage(pageNum);
+                        const content = await page.getTextContent();
+                        const viewport = page.getViewport({ scale: 1 });
+
+                        const raw = normalizeItems(
+                            content.items,
+                            viewport.width,
+                            viewport.height,
+                            supplier === "siddhayu"
+                                ? 841.89
+                                : supplier === "blue"
+                                  ? 1006
+                                  : 595.276,
+                            supplier === "siddhayu"
+                                ? 595.276
+                                : supplier === "blue"
+                                  ? 609
+                                  : 841.89,
+                        );
+
+                        if (!raw.length) {
+                            throw new Error(
+                                doc.numPages === 1
+                                    ? noTextMessage
+                                    : `Page ${pageNum} has no selectable text. Use a digital invoice or an OCR-converted PDF.`,
+                            );
+                        }
+
+                        const pageText = raw
+                            .map((item) => item.text)
+                            .join(" ")
+                            .toUpperCase();
+                        const validSupplier =
+                            supplier === "siddhayu"
+                                ? /SIDDHAYU/.test(pageText)
+                                : supplier === "blue"
+                                  ? /BLUE\s*CROSS|BCLPL/.test(pageText)
+                                  : /DHOOTAPAPESHWAR/.test(pageText);
+
+                        if (!validSupplier) {
+                            if (pageNum === 1) {
+                                throw new Error(
+                                    "The selected supplier does not match the PDF. Please select the correct supplier.",
+                                );
+                            }
+                            continue;
+                        }
+
+                        const rows =
+                            supplier === "siddhayu"
+                                ? parseSiddhayu(raw)
+                                : supplier === "blue"
+                                  ? parseBlue(raw)
+                                  : parseDhoot(raw);
+                        allRows.push(...rows);
+                    }
+
+                    if (!allRows.length) {
+                        throw new Error(
+                            "Selectable text was found, but no valid medicine rows matched this supplier’s known table layout. " +
+                                "The PDF layout may have changed. No CSV was generated.",
+                        );
+                    }
+
+                    const headers =
+                        supplier === "siddhayu"
+                            ? SIDDHAYU_HEADERS
+                            : supplier === "blue"
+                              ? BLUE_HEADERS
+                              : DHOOT_HEADERS;
+                    const name =
+                        supplier === "siddhayu"
+                            ? "SIDDHAYU AYURVEDIC RESEARCH FOUNDATION"
+                            : supplier === "blue"
+                              ? "BLUE CROSS LABORATORIES"
+                              : "SHREE DHOOTAPAPESHWAR LIMITED";
+                    downloadCsv(headers, allRows, name + ".csv");
+
+                    status(
+                        `CSV downloaded successfully.\n` +
+                            `${allRows.length} medicine row(s) extracted across ${doc.numPages} PDF page(s).\n` +
+                            `Please verify the CSV against the original invoice before importing into your ERP.`,
+                        "success",
+                    );
+                } catch (error) {
+                    console.error(error);
+                    status(
+                        "Conversion failed: " +
+                            (error?.message || String(error)),
+                        "error",
+                    );
+                } finally {
+                    if (doc) await doc.destroy().catch(() => {});
+                    button.disabled = false;
+                }
+            });
+        </script>
+    </body>
 </html>
+
